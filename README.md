@@ -15,7 +15,6 @@ A starter framework for a CRUD REST API interview challenge. The boilerplate is 
 
 ❌ **Stubbed and waiting for implementation:**
 - `internal/handlers/items.go` - CRUD request handlers (5 functions)
-- `internal/httpjson/json.go` - Request/response JSON encoding (3 functions)
 - `internal/validation/validation.go` - Input validation (2 functions)
 - `internal/store/memory/memory.go` - In-memory data storage (5 methods)
 
@@ -43,18 +42,12 @@ Recommended order during the interview:
    - `ParseListFilter()` - Parse query parameters
    - These are pure functions with no dependencies
 
-2. **Then `internal/httpjson/json.go`** (3 functions)
-   - `WriteJSON()` - Encode responses
-   - `WriteError()` - Encode errors
-   - `DecodeJSON()` - Decode requests
-   - These handle all request/response I/O
-
-3. **Then `internal/store/memory/memory.go`** (5 methods)
+2. **Then `internal/store/memory/memory.go`** (5 methods)
    - Store constructor (`New()`)
    - Core CRUD: `Create()`, `Get()`, `Update()`, `Delete()`
    - List with filtering: `List()`
 
-4. **Finally `internal/handlers/items.go`** (5 functions)
+3. **Finally `internal/handlers/items.go`** (5 functions)
    - Route dispatch: `HandleItems()`, `HandleItem()`
    - CRUD handlers: `listItems()`, `createItem()`, `getItem()`, `updateItem()`, `deleteItem()`
    - These orchestrate everything together
@@ -62,7 +55,6 @@ Recommended order during the interview:
 **Test as you go:**
 ```bash
 go test ./internal/validation
-go test ./internal/httpjson
 go test ./internal/store/memory
 go test ./internal/handlers
 go test ./...
@@ -73,7 +65,6 @@ go test ./...
 ```bash
 # View what's in the starter template
 cat internal/handlers/items.go
-cat internal/httpjson/json.go
 cat internal/validation/validation.go
 cat internal/store/memory/memory.go
 
@@ -85,6 +76,7 @@ PORT=8080 STORAGE=memory go run ./cmd/server
 ## Endpoints
 
 - `GET /health`
+To be implemented
 - `GET /items?name=alpha&tag=one&limit=10&offset=0`
 - `POST /items`
 - `GET /items/{id}`
@@ -96,12 +88,12 @@ PORT=8080 STORAGE=memory go run ./cmd/server
 ### Running the Server
 
 ```bash
-# macOS/Linux
+# macOS/Linux Storage should be sqlite or memory
 PORT=8080 STORAGE=memory go run ./cmd/server
 ```
 
 ```powershell
-# Windows PowerShell
+# Windows PowerShell Storage should be sqlite or memory
 $env:PORT=8080; $env:STORAGE=memory; & go run ./cmd/server
 ```
 
