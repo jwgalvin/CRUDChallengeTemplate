@@ -76,7 +76,6 @@ PORT=8080 STORAGE=memory go run ./cmd/server
 ## Endpoints
 
 - `GET /health`
-To be implemented
 - `GET /items?name=alpha&tag=one&limit=10&offset=0`
 - `POST /items`
 - `GET /items/{id}`
@@ -231,89 +230,115 @@ curl -s http://localhost:8080/items/nonexistent | jq
 
 ## PowerShell Requests (Windows)
 
+> Add `-UseBasicParsing` to all requests to suppress the IE script engine security prompt.
+> PowerShell throws on non-2xx responses — use the try/catch pattern below to see error bodies.
+
+### Error Response Pattern
+```powershell
+try {
+    Invoke-WebRequest -UseBasicParsing -Uri http://localhost:8080/items/item-9999 -Method GET
+} catch {
+    $_.Exception.Response.StatusCode.value__
+    $_.ErrorDetails.Message
+}
+```
+
 ### Health Check
 ```powershell
-Invoke-WebRequest -Uri http://localhost:8080/health | ConvertTo-Json
+Invoke-WebRequest -UseBasicParsing -Uri http://localhost:8080/health -Method GET
+# Response: {"status":"ok"}
 ```
 
 ### Create Item (POST)
 ```powershell
-$body = @{
-    name = "Go Backend API"
-    tags = @("golang", "backend", "rest")
-} | ConvertTo-Json
-
-Invoke-WebRequest -Uri http://localhost:8080/items `
+Invoke-WebRequest -UseBasicParsing -Uri http://localhost:8080/items `
   -Method POST `
   -ContentType "application/json" `
-  -Body $body
+  -Body '{"name":"Go Backend API","tags":["golang","backend","rest"]}'
+# Response 201: {"id":"item-1","name":"Go Backend API","tags":[...],"createdAt":"...","updatedAt":"..."}
 ```
 
 ### List Items (GET)
 ```powershell
-# List all items
-Invoke-WebRequest -Uri http://localhost:8080/items
+# List all items (default limit 50)
+Invoke-WebRequest -UseBasicParsing -Uri http://localhost:8080/items -Method GET
 
 # With pagination
-Invoke-WebRequest -Uri "http://localhost:8080/items?limit=5&offset=0"
+Invoke-WebRequest -UseBasicParsing -Uri "http://localhost:8080/items?limit=5&offset=0" -Method GET
 
-# Filter by name
-Invoke-WebRequest -Uri "http://localhost:8080/items?name=backend"
+# Filter by name (substring, case-insensitive)
+Invoke-WebRequest -UseBasicParsing -Uri "http://localhost:8080/items?name=backend" -Method GET
 
-# Filter by tag
-Invoke-WebRequest -Uri "http://localhost:8080/items?tag=golang"
+# Filter by tag (exact match, case-insensitive)
+Invoke-WebRequest -UseBasicParsing -Uri "http://localhost:8080/items?tag=golang" -Method GET
 
 # Combined filters
-Invoke-WebRequest -Uri "http://localhost:8080/items?name=go&tag=backend&limit=10"
+Invoke-WebRequest -UseBasicParsing -Uri "http://localhost:8080/items?name=go&tag=backend&limit=10" -Method GET
 ```
 
 ### Get Single Item (GET)
 ```powershell
-Invoke-WebRequest -Uri http://localhost:8080/items/item-1
+Invoke-WebRequest -UseBasicParsing -Uri http://localhost:8080/items/item-1 -Method GET
 ```
 
 ### Update Item (PUT)
 ```powershell
-$body = @{
-    name = "Updated Go Backend API"
-    tags = @("golang", "backend", "v2")
-} | ConvertTo-Json
-
-Invoke-WebRequest -Uri http://localhost:8080/items/item-1 `
+Invoke-WebRequest -UseBasicParsing -Uri http://localhost:8080/items/item-1 `
   -Method PUT `
   -ContentType "application/json" `
-  -Body $body
+  -Body '{"name":"Updated Go Backend API","tags":["golang","backend","v2"]}'
+# Response 200: {"id":"item-1","name":"Updated Go Backend API",...,"updatedAt":"<new timestamp>"}
 ```
 
 ### Delete Item (DELETE)
 ```powershell
-Invoke-WebRequest -Uri http://localhost:8080/items/item-1 `
-  -Method DELETE
+Invoke-WebRequest -UseBasicParsing -Uri http://localhost:8080/items/item-1 -Method DELETE
+# Response: 204 No Content
 
-# Verify deletion:
-Invoke-WebRequest -Uri http://localhost:8080/items/item-1
-# Should return 404 error
+# Verify deletion (expect 404):
+try {
+    Invoke-WebRequest -UseBasicParsing -Uri http://localhost:8080/items/item-1 -Method GET
+} catch {
+    $_.Exception.Response.StatusCode.value__
+}
 ```
 
 ### Error Scenarios
 ```powershell
-# Missing required name field
-$body = @{ tags = @("test") } | ConvertTo-Json
-Invoke-WebRequest -Uri http://localhost:8080/items `
-  -Method POST `
-  -ContentType "application/json" `
-  -Body $body
-# Response 400: {"error":"name is required"}
+# 400 — name is whitespace only
+try {
+    Invoke-WebRequest -UseBasicParsing -Uri http://localhost:8080/items `
+      -Method POST -ContentType "application/json" `
+      -Body '{"name":"   ","tags":["test"]}'
+} catch { $_.Exception.Response.StatusCode.value__; $_.ErrorDetails.Message }
 
-# Item not found
-Invoke-WebRequest -Uri http://localhost:8080/items/nonexistent
-# Response 404: {"error":"not found"}
+# 400 — malformed JSON
+try {
+    Invoke-WebRequest -UseBasicParsing -Uri http://localhost:8080/items `
+      -Method POST -ContentType "application/json" `
+      -Body '{"name": bad json'
+} catch { $_.Exception.Response.StatusCode.value__; $_.ErrorDetails.Message }
+
+# 400 — invalid limit param
+try {
+    Invoke-WebRequest -UseBasicParsing -Uri "http://localhost:8080/items?limit=abc" -Method GET
+} catch { $_.Exception.Response.StatusCode.value__; $_.ErrorDetails.Message }
+
+# 404 — item not found
+try {
+    Invoke-WebRequest -UseBasicParsing -Uri http://localhost:8080/items/item-9999 -Method GET
+} catch { $_.Exception.Response.StatusCode.value__; $_.ErrorDetails.Message }
+
+# 405 — wrong method on /items
+try {
+    Invoke-WebRequest -UseBasicParsing -Uri http://localhost:8080/items -Method DELETE
+} catch { $_.Exception.Response.StatusCode.value__; $_.ErrorDetails.Message }
 ```
 
 ---
 
 ## Notes
 
-- The default store is in-memory. Set `STORAGE=sqlite` to start the sqlite stub.
+- The default store is in-memory. Set `STORAGE=sqlite` to use the SQLite store (`crudapp.db`).
 - Replace the module path in go.mod as needed.
 - **Windows users:** Use PowerShell commands above, or install Git for Windows to use bash/curl commands.
