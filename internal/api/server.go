@@ -8,20 +8,20 @@ import (
 )
 
 type Server struct {
-    mux *http.ServeMux
+	mux *http.ServeMux
 }
 
 func NewServer(st store.Store) *Server {
-    mux := http.NewServeMux()
-    itemsHandler := handlers.NewItemsHandler(st)
+	mux := http.NewServeMux()
+	itemsHandler := handlers.NewItemsHandler(st)
 
-    mux.HandleFunc("/health", handlers.Health)
-    mux.HandleFunc("/items", itemsHandler.HandleItems)
-    mux.HandleFunc("/items/", itemsHandler.HandleItem)
+	mux.HandleFunc("/health", handlers.Health)
+	mux.HandleFunc("/items", itemsHandler.HandleItems)
+	mux.HandleFunc("/items/", itemsHandler.HandleItem)
 
-    return &Server{mux: mux}
+	return &Server{mux: mux}
 }
 
 func (s *Server) Handler() http.Handler {
-    return s.mux
+	return s.mux
 }

@@ -7,10 +7,10 @@ import (
 )
 
 func Health(w http.ResponseWriter, r *http.Request) {
-    if r.Method != http.MethodGet {
-        httpjson.WriteError(w, http.StatusMethodNotAllowed, "method not allowed")
-        return
-    }
+	if r.Method != http.MethodGet {
+		httpjson.WriteError(w, http.StatusMethodNotAllowed, "method not allowed")
+		return
+	}
 
-    httpjson.WriteJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+	httpjson.WriteJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 }

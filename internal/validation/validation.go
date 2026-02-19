@@ -42,4 +42,3 @@ func ParseListFilter(values url.Values) (store.ListFilter, error) {
 	// 4. Return completed filter and nil error
 	panic("not implemented")
 }
-

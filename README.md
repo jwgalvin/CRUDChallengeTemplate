@@ -16,7 +16,7 @@ A starter framework for a CRUD REST API interview challenge. The boilerplate is 
 ❌ **Stubbed and waiting for implementation:**
 - `internal/handlers/items.go` - CRUD request handlers (5 functions)
 - `internal/validation/validation.go` - Input validation (2 functions)
-- `internal/store/memory/memory.go` - In-memory data storage (5 methods)
+- `internal/store/sqlite/sqlite.go` - SQLite data storage (5 methods)
 
 Each file has detailed TODO comments explaining what to implement.
 
@@ -25,7 +25,7 @@ Each file has detailed TODO comments explaining what to implement.
 The test files are included as **reference implementations** and to validate your work:
 
 - `internal/handlers/items_test.go` - Examples of testing CRUD operations
-- `internal/store/memory/memory_test.go` - Examples of testing the store layer
+- `internal/store/sqlite/sqlite_test.go` - Examples of testing the store layer
 - `internal/validation/validation_test.go` - Examples of testing input validation
 
 You can run tests to verify your implementations:
@@ -42,7 +42,7 @@ Recommended order during the interview:
    - `ParseListFilter()` - Parse query parameters
    - These are pure functions with no dependencies
 
-2. **Then `internal/store/memory/memory.go`** (5 methods)
+2. **Then `internal/store/sqlite/sqlite.go`** (5 methods)
    - Store constructor (`New()`)
    - Core CRUD: `Create()`, `Get()`, `Update()`, `Delete()`
    - List with filtering: `List()`
@@ -55,7 +55,7 @@ Recommended order during the interview:
 **Test as you go:**
 ```bash
 go test ./internal/validation
-go test ./internal/store/memory
+go test ./internal/store/sqlite
 go test ./internal/handlers
 go test ./...
 ```
@@ -66,11 +66,11 @@ go test ./...
 # View what's in the starter template
 cat internal/handlers/items.go
 cat internal/validation/validation.go
-cat internal/store/memory/memory.go
+cat internal/store/sqlite/sqlite.go
 
 # Once you implement the functions, test with:
 go test ./...
-PORT=8080 STORAGE=memory go run ./cmd/server
+go run ./cmd/server
 ```
 
 ## Endpoints
@@ -87,13 +87,13 @@ PORT=8080 STORAGE=memory go run ./cmd/server
 ### Running the Server
 
 ```bash
-# macOS/Linux Storage should be sqlite or memory
-PORT=8080 STORAGE=memory go run ./cmd/server
+# macOS/Linux
+PORT=8080 go run ./cmd/server
 ```
 
 ```powershell
-# Windows PowerShell Storage should be sqlite or memory
-$env:PORT=8080; $env:STORAGE=memory; & go run ./cmd/server
+# Windows PowerShell
+$env:PORT=8080; & go run ./cmd/server
 ```
 
 ---
