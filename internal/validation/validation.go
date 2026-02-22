@@ -10,6 +10,7 @@ import (
 const (
 	defaultLimit = 50
 	maxLimit     = 200
+	tagLimit     = 20
 )
 
 func NormalizeItemInput(input model.ItemInput) (model.ItemInput, error) {

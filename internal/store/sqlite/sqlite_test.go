@@ -31,22 +31,6 @@ func TestSQLiteStoreCRUD(t *testing.T) {
 		t.Fatalf("expected name alpha, got %s", fetched.Name)
 	}
 
-	updated, err := st.Update(context.Background(), created.ID, model.ItemInput{Name: "beta", Tags: []string{"two"}})
-	if err != nil {
-		t.Fatalf("update: %v", err)
-	}
-
-	if updated.Name != "beta" {
-		t.Fatalf("expected name beta, got %s", updated.Name)
-	}
-
-	if err := st.Delete(context.Background(), created.ID); err != nil {
-		t.Fatalf("delete: %v", err)
-	}
-
-	if _, err := st.Get(context.Background(), created.ID); err == nil {
-		t.Fatalf("expected not found error after delete")
-	}
 }
 
 func TestSQLiteStoreListFilter(t *testing.T) {
@@ -69,24 +53,6 @@ func TestSQLiteGetNotFound(t *testing.T) {
 	st := newTestStore(t)
 
 	_, err := st.Get(context.Background(), "item-9999")
-	if err != store.ErrNotFound {
-		t.Fatalf("expected ErrNotFound, got %v", err)
-	}
-}
-
-func TestSQLiteUpdateNotFound(t *testing.T) {
-	st := newTestStore(t)
-
-	_, err := st.Update(context.Background(), "item-9999", model.ItemInput{Name: "test"})
-	if err != store.ErrNotFound {
-		t.Fatalf("expected ErrNotFound, got %v", err)
-	}
-}
-
-func TestSQLiteDeleteNotFound(t *testing.T) {
-	st := newTestStore(t)
-
-	err := st.Delete(context.Background(), "item-9999")
 	if err != store.ErrNotFound {
 		t.Fatalf("expected ErrNotFound, got %v", err)
 	}
@@ -179,21 +145,6 @@ func TestSQLiteListCaseInsensitive(t *testing.T) {
 	}
 }
 
-func TestSQLiteUpdatePreservesCreatedAt(t *testing.T) {
-	st := newTestStore(t)
-
-	created, _ := st.Create(context.Background(), model.Item{Name: "original", Tags: []string{"a"}})
-	originalCreatedAt := created.CreatedAt
-
-	updated, _ := st.Update(context.Background(), created.ID, model.ItemInput{Name: "modified", Tags: []string{"b"}})
-
-	if !updated.CreatedAt.Equal(originalCreatedAt) {
-		t.Fatalf("update should not change createdAt")
-	}
-	if updated.UpdatedAt.Before(originalCreatedAt) {
-		t.Fatalf("updatedAt should be after or equal to createdAt")
-	}
-}
 
 func TestSQLiteCreateGeneratesUniqueIDs(t *testing.T) {
 	st := newTestStore(t)

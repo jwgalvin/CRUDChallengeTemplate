@@ -62,24 +62,3 @@ func (h *ItemsHandler) createItem(w http.ResponseWriter, r *http.Request) {
 	// 6. Return 500 Internal Server Error on store error
 	panic("not implemented")
 }
-
-func (h *ItemsHandler) updateItem(w http.ResponseWriter, r *http.Request, id string) {
-	// TODO: Implement PUT /items/{id}:
-	// 1. Parse JSON body into model.ItemInput using httpjson.DecodeJSON()
-	// 2. Validate and normalize input using validation.NormalizeItemInput()
-	// 3. Call h.store.Update(id, normalized)
-	// 4. Return 200 OK with updated item JSON
-	// 5. Return 404 Not Found if item doesn't exist
-	// 6. Return 400 Bad Request if JSON invalid or validation fails
-	// 7. Return 500 Internal Server Error on store error
-	panic("not implemented")
-}
-
-func (h *ItemsHandler) deleteItem(w http.ResponseWriter, r *http.Request, id string) {
-	// TODO: Implement DELETE /items/{id}:
-	// 1. Call h.store.Delete(id)
-	// 2. Return 204 No Content if successful (empty response body)
-	// 3. Return 404 Not Found if item doesn't exist
-	// 4. Return 500 Internal Server Error on store error
-	panic("not implemented")
-}
