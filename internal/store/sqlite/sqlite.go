@@ -4,8 +4,12 @@ import (
 	"context"
 	"crypto/rand"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
+
+	_ "modernc.org/sqlite"
 
 	"example.com/crudapp/internal/model"
 	"example.com/crudapp/internal/store"
@@ -78,10 +82,26 @@ func (s *Store) List(_ context.Context, _ store.ListFilter) ([]model.Item, error
 	return nil, errors.New("sqlite store not implemented")
 }
 
-func (s *Store) Update(_ context.Context, _ string, _ model.ItemInput) (model.Item, error) {
-	return model.Item{}, errors.New("sqlite store not implemented")
+type scanner interface {
+	Scan(dest ...interface{}) error
 }
 
-func (s *Store) Delete(_ context.Context, _ string) error {
-	return errors.New("sqlite store not implemented")
+func scanItem(s scanner) (model.Item, error) {
+	var item model.Item
+	var tagsJSON string
+	var createdAt, updatedAt time.Time
+
+	if err := s.Scan(&item.ID, &item.Name, &tagsJSON, &createdAt, &updatedAt); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return model.Item{}, store.ErrNotFound
+		}
+		return model.Item{}, err
+	}
+
+	if err := json.Unmarshal([]byte(tagsJSON), &item.Tags); err != nil {
+		return model.Item{}, err
+	}
+	item.CreatedAt = createdAt.UTC()
+	item.UpdatedAt = updatedAt.UTC()
+	return item, nil
 }

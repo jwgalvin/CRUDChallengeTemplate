@@ -1,7 +1,9 @@
 package validation
 
 import (
+	"fmt"
 	"net/url"
+	"strconv"
 
 	"example.com/crudapp/internal/model"
 	"example.com/crudapp/internal/store"
@@ -42,4 +44,23 @@ func ParseListFilter(values url.Values) (store.ListFilter, error) {
 	//    b. Return error "invalid offset" if not parseable or < 0
 	// 4. Return completed filter and nil error
 	panic("not implemented")
+}
+
+func parseLimit(s string) (int, error) {
+	n, err := strconv.Atoi(s)
+	if err != nil || n < 1 {
+		return 0, fmt.Errorf("invalid limit")
+	}
+	if n > maxLimit {
+		n = maxLimit
+	}
+	return n, nil
+}
+
+func parseOffset(s string) (int, error) {
+	n, err := strconv.Atoi(s)
+	if err != nil || n < 0 {
+		return 0, fmt.Errorf("invalid offset")
+	}
+	return n, nil
 }
