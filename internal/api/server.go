@@ -17,7 +17,7 @@ func NewServer(st store.Store) *Server {
 
 	mux.HandleFunc("/health", handlers.Health)
 	mux.HandleFunc("/items", itemsHandler.HandleItems)
-	mux.HandleFunc("/items/", itemsHandler.HandleItem)
+	mux.HandleFunc("/items/{id}", itemsHandler.HandleItem)
 
 	return &Server{mux: mux}
 }

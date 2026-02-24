@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	_ "modernc.org/sqlite"
@@ -26,12 +27,14 @@ const (
 	insertQuery         = `INSERT INTO items (id, name, tags, created_at, updated_at) VALUES (?, ?, ?, ?, ?)`
 	getQuery            = `SELECT id, name, tags, created_at, updated_at FROM items WHERE id = ?`
 	listBaseQuery       = `SELECT id, name, tags, created_at, updated_at FROM items WHERE 1=1`
+	listNameQuery       = ` AND LOWER(name) LIKE LOWER(?) `
 	listTagsFilterQuery = ` AND EXISTS (SELECT 1 FROM json_each(tags) WHERE LOWER(value) = LOWER(?))`
 	listOrderbyQuery    = ` ORDER BY created_at ASC LIMIT ? OFFSET ?`
 )
 
 type Store struct {
-	myDb *sql.DB
+	myDb   *sql.DB
+	logger *slog.Logger
 }
 
 func New(dsn string) *Store {
@@ -42,7 +45,7 @@ func New(dsn string) *Store {
 	if err := migrate(db); err != nil {
 		panic(fmt.Sprintf("sqlite migrate: %v", err))
 	}
-	return &Store{myDb: db}
+	return &Store{myDb: db, logger: slog.Default()}
 }
 
 func migrate(db *sql.DB) error {
@@ -64,22 +67,16 @@ func generateID() (string, error) {
 	return fmt.Sprintf("item-%x", b), nil
 }
 
-func (s *Store) Create(_ context.Context, _ model.Item) (model.Item, error) {
-	// generate UUID
-	// create tags (should be empty if no tags provided and will need meet a not null constraint)
-	// marshal tags to JSON
-	// get current timestamp
-	// set the ID, tags, and timestamps on the item
-	return model.Item{}, errors.New("sqlite store not implemented")
+func (s *Store) Create(ctx context.Context, item model.Item) (model.Item, error) {
+	panic("not implemented")
 }
 
-func (s *Store) Get(_ context.Context, _ string) (model.Item, error) {
-	//
-	return model.Item{}, errors.New("sqlite store not implemented")
+func (s *Store) Get(ctx context.Context, id string) (model.Item, error) {
+	panic("not implemented")
 }
 
-func (s *Store) List(_ context.Context, _ store.ListFilter) ([]model.Item, error) {
-	return nil, errors.New("sqlite store not implemented")
+func (s *Store) List(ctx context.Context, filter store.ListFilter) ([]model.Item, error) {
+	panic("not implemented")
 }
 
 type scanner interface {

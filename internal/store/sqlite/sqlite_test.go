@@ -17,7 +17,7 @@ func newTestStore(t *testing.T) *Store {
 func TestSQLiteStoreCRUD(t *testing.T) {
 	st := newTestStore(t)
 
-	created, err := st.Create(context.Background(), model.Item{Name: "alpha", Tags: []string{"one"}})
+	created, err := st.Create(context.Background(), model.Item{Name: "item-", Tags: []string{"one"}})
 	if err != nil {
 		t.Fatalf("create: %v", err)
 	}
@@ -27,8 +27,8 @@ func TestSQLiteStoreCRUD(t *testing.T) {
 		t.Fatalf("get: %v", err)
 	}
 
-	if fetched.Name != "alpha" {
-		t.Fatalf("expected name alpha, got %s", fetched.Name)
+	if fetched.Name != "item-" {
+		t.Fatalf("expected name item-, got %s", fetched.Name)
 	}
 
 }
