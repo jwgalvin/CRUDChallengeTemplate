@@ -278,29 +278,7 @@ Invoke-WebRequest -UseBasicParsing -Uri "http://localhost:8080/items?name=go&tag
 
 ### Get Single Item (GET)
 ```powershell
-Invoke-WebRequest -UseBasicParsing -Uri http://localhost:8080/items/item-1 -Method GET
-```
-
-### Update Item (PUT)
-```powershell
-Invoke-WebRequest -UseBasicParsing -Uri http://localhost:8080/items/item-1 `
-  -Method PUT `
-  -ContentType "application/json" `
-  -Body '{"name":"Updated Go Backend API","tags":["golang","backend","v2"]}'
-# Response 200: {"id":"item-1","name":"Updated Go Backend API",...,"updatedAt":"<new timestamp>"}
-```
-
-### Delete Item (DELETE)
-```powershell
-Invoke-WebRequest -UseBasicParsing -Uri http://localhost:8080/items/item-1 -Method DELETE
-# Response: 204 No Content
-
-# Verify deletion (expect 404):
-try {
-    Invoke-WebRequest -UseBasicParsing -Uri http://localhost:8080/items/item-1 -Method GET
-} catch {
-    $_.Exception.Response.StatusCode.value__
-}
+Invoke-WebRequest -UseBasicParsing -Uri http://localhost:8080/items/1 -Method GET
 ```
 
 ### Error Scenarios
